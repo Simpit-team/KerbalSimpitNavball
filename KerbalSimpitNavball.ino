@@ -1,6 +1,8 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 
+#include "KerbalSimpit.h"
+
 #include "navball.h"
 
 // The control pins for the LCD can be assigned to any digital or
@@ -24,14 +26,20 @@
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
+KerbalSimpit mySimpit(Serial);
+
 float roll, pitch, yaw;
 Navball navball;
 
 unsigned long start_time, end_time;
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println(F("Simpit NavBall test"));
+  Serial.begin(115200);
+
+  // Set up the build in LED, and turn it on.
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  
   tft.reset();
 
   roll = 0;
@@ -42,14 +50,28 @@ void setup() {
 
   tft.fillScreen(RED);
   tft.fillScreen(BLACK);
+
+  //Connect to Simpit
+  while (!mySimpit.init()) {
+    delay(100);
+  }
+  digitalWrite(LED_BUILTIN, LOW);
+
+  mySimpit.printToKSP("Navball Connected", PRINT_TO_SCREEN);
+
+  mySimpit.inboundHandler(messageHandler);
+  mySimpit.registerChannel(ROTATION_DATA);
 }
 
 void loop()
 {
+  /*
   roll += 5;
   pitch += 2;
   yaw += 3;
-
+  */
+  
+  mySimpit.update();
   navball.set_rpy(roll, pitch, yaw);
 
   start_time = millis();
@@ -63,4 +85,19 @@ void loop()
   tft.print(end_time - start_time);
 
   delay(200);
+}
+
+void messageHandler(byte messageType, byte msg[], byte msgSize) {
+  switch(messageType) {
+  case ROTATION_DATA:
+    if (msgSize == sizeof(vesselPointingMessage)) {
+      vesselPointingMessage rotMsg;
+      // Convert the message we received to an Altitude struct.
+      rotMsg = parseMessage<vesselPointingMessage>(msg);
+      roll = rotMsg.roll;
+      pitch = rotMsg.pitch;
+      yaw = rotMsg.heading;
+    }
+    break;
+  }
 }
