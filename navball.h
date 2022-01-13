@@ -40,14 +40,20 @@ private :
   int _pitch;
   int _yaw;
 
+  // number of point used for the angle discretisation. This is the amont of value used for the full 360°. Must be a mutliple of 4.
   static const int DISCRETISATION_SIZE = 1000;
   const int NBR_LON = 36; // increment in longitude for drawing them
   const int LAT_INC = 15; // increment in latitude for drawing them
   const int SIZE = 300; // in pixels, diameter of the navball
 
-  //discretized values for sin/cos to avoid computing them on the fly
-  static float _sin_table[DISCRETISATION_SIZE];
-  static float _cos_table[DISCRETISATION_SIZE]; //TODO reuse sin table, just shifted ?
+  // Discretized values for sin/cos to avoid computing them on the fly. Available between [0, 90]. 
+  // Use sin_d and cos_d to compute a sin/cos value.
+  static float _sin_table[DISCRETISATION_SIZE/4 + 1];
+
+  // Compute a sin value from a discretized angle, by looking it up in _sin_table
+  float sin_d(int disc_angle);
+  // Compute a cos value from a discretized angle, by looking it up in _sin_table
+  float cos_d(int disc_angle);
 
   // Convert an angle (in deg) to an discretized value, between 0 and DISCRETISATION_SIZE. Assume the angle is above -360.
   inline int discretize_angle(float angle){ return ((int)((angle  * DISCRETISATION_SIZE)/360) + DISCRETISATION_SIZE) % DISCRETISATION_SIZE; }

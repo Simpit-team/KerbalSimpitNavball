@@ -1,12 +1,10 @@
 #include "navball.h"
 
-float Navball::_sin_table[DISCRETISATION_SIZE];
-float Navball::_cos_table[DISCRETISATION_SIZE];
+float Navball::_sin_table[DISCRETISATION_SIZE/4 + 1];
 
 Navball::Navball(){
-  for(int i = 0; i < DISCRETISATION_SIZE; i++){
+  for(int i = 0; i <= DISCRETISATION_SIZE/4; i++){
     _sin_table[i] = sin(i*2*3.14/DISCRETISATION_SIZE);
-    _cos_table[i] = cos(i*2*3.14/DISCRETISATION_SIZE);
   }
 }
 
@@ -52,22 +50,42 @@ void Navball::set_rpy(float roll, float pitch, float yaw){
   _yaw =   discretize_angle(yaw);
 }
 
+float Navball::sin_d(int disc_angle){
+  // ensure the angle is positive
+  if(disc_angle < 0) return -sin_d(-disc_angle);
+  // ensure the angle is below 360°
+  disc_angle = disc_angle % DISCRETISATION_SIZE;
+  // ensure the angle is below 180°
+  if(disc_angle >= DISCRETISATION_SIZE/2) return -sin_d(disc_angle - DISCRETISATION_SIZE/2);
+  
+  if(disc_angle <= DISCRETISATION_SIZE/4){
+    return _sin_table[disc_angle];
+  } else {
+    return _sin_table[DISCRETISATION_SIZE/2 - disc_angle];
+  }
+}
+
+float Navball::cos_d(int disc_angle){
+  // Use the fact that cos(a) = sin(a + 90°)
+  return sin_d(disc_angle + DISCRETISATION_SIZE/4);
+}
+
 Point2D Navball::getXY(float lat, float lon){
   // Discretize the coordinate
   LatLon pt_polar = {discretize_angle(lat), discretize_angle(lon)};
 
   // Get the original 3D coordinate, without any rotation
   // X is the axis to the right, Y to the top, Z is coming to the viewer
-  Point3D pt1 = {_sin_table[pt_polar.lon]*_cos_table[pt_polar.lat], _sin_table[pt_polar.lat], _cos_table[pt_polar.lon]*_cos_table[pt_polar.lat]};
+  Point3D pt1 = {sin_d(pt_polar.lon)*cos_d(pt_polar.lat), sin_d(pt_polar.lat), cos_d(pt_polar.lon)*cos_d(pt_polar.lat)};
 
   // Apply yaw rotation
-  Point3D pt2 = {pt1.x*_cos_table[_yaw]+pt1.z*_sin_table[_yaw], pt1.y, -pt1.x*_sin_table[_yaw]+pt1.z*_cos_table[_yaw]};
+  Point3D pt2 = {pt1.x*cos_d(_yaw)+pt1.z*sin_d(_yaw), pt1.y, -pt1.x*sin_d(_yaw)+pt1.z*cos_d(_yaw)};
 
   // Apply pitch rotation
-  Point3D pt3 = {pt2.x, pt2.y*_cos_table[_pitch]+pt2.z*_sin_table[_pitch], -pt2.y*_sin_table[_pitch]+pt2.z*_cos_table[_pitch]};
+  Point3D pt3 = {pt2.x, pt2.y*cos_d(_pitch)+pt2.z*sin_d(_pitch), -pt2.y*sin_d(_pitch)+pt2.z*cos_d(_pitch)};
 
   // Apply roll rotation
-  Point3D pt4 = {pt3.x*_cos_table[_roll]+pt3.y*_sin_table[_roll], -pt3.x*_sin_table[_roll]+pt3.y*_cos_table[_roll], pt3.z};
+  Point3D pt4 = {pt3.x*cos_d(_roll)+pt3.y*sin_d(_roll), -pt3.x*sin_d(_roll)+pt3.y*cos_d(_roll), pt3.z};
 
   // Convert the coordinate from a sphere of size one to screen coordinate
   return Point2D{(pt4.x+ 1)*SIZE/2, (pt4.y+ 1)*SIZE/2, pt4.z >= 0};
