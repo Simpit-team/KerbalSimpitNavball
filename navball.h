@@ -41,7 +41,7 @@ private :
   int _yaw;
 
   // number of point used for the angle discretisation. This is the amont of value used for the full 360°. Must be a mutliple of 4.
-  static const int DISCRETISATION_SIZE = 1000;
+  static const int DISCRETISATION_SIZE = 360;
   const int NBR_LON = 36; // increment in longitude for drawing them
   const int LAT_INC = 15; // increment in latitude for drawing them
   const int SIZE = 300; // in pixels, diameter of the navball
