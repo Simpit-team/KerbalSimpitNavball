@@ -5,6 +5,8 @@
 
 #include "navball.h"
 
+#define CONNECT_TO_SIMPIT false
+
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
 // double up the pins with the touch screen (see the TFT paint example).
@@ -15,7 +17,7 @@
 #define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
 
 // Assign human-readable names to some common 16-bit color values:
-#define  BLACK   0x0000
+#define BLACK   0x0000
 #define BLUE    0x001F
 #define RED     0xF800
 #define GREEN   0x07E0
@@ -34,7 +36,7 @@ Navball navball;
 unsigned long start_time, end_time;
 
 void setup() {
-  Serial.begin(115200);
+  if(CONNECT_TO_SIMPIT) Serial.begin(115200);
 
   // Set up the build in LED, and turn it on.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -51,27 +53,30 @@ void setup() {
   tft.fillScreen(RED);
   tft.fillScreen(BLACK);
 
-  //Connect to Simpit
-  while (!mySimpit.init()) {
-    delay(100);
+  if(CONNECT_TO_SIMPIT){
+    //Connect to Simpit
+    while (!mySimpit.init()) {
+      delay(100);
+    }
+
+    digitalWrite(LED_BUILTIN, LOW);
+
+    mySimpit.printToKSP("Navball Connected", PRINT_TO_SCREEN);
+
+    mySimpit.inboundHandler(messageHandler);
+    mySimpit.registerChannel(ROTATION_DATA);
   }
-  digitalWrite(LED_BUILTIN, LOW);
-
-  mySimpit.printToKSP("Navball Connected", PRINT_TO_SCREEN);
-
-  mySimpit.inboundHandler(messageHandler);
-  mySimpit.registerChannel(ROTATION_DATA);
 }
 
 void loop()
-{
-  /*
-  roll += 5;
-  pitch += 2;
-  yaw += 3;
-  */
-  
-  mySimpit.update();
+{ 
+  if(CONNECT_TO_SIMPIT) {
+    mySimpit.update();
+  } else {
+    roll += 5;
+    pitch += 2;
+    yaw += 3;
+  }
   navball.set_rpy(roll, pitch, yaw);
 
   start_time = millis();
@@ -92,7 +97,6 @@ void messageHandler(byte messageType, byte msg[], byte msgSize) {
   case ROTATION_DATA:
     if (msgSize == sizeof(vesselPointingMessage)) {
       vesselPointingMessage rotMsg;
-      // Convert the message we received to an Altitude struct.
       rotMsg = parseMessage<vesselPointingMessage>(msg);
       roll = rotMsg.roll;
       pitch = rotMsg.pitch;
