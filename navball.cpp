@@ -10,7 +10,7 @@ Navball::Navball(){
   }
 }
 
-void Navball::draw(Adafruit_TFTLCD* tft){
+void Navball::draw(Adafruit_GFX* tft){
   // Erase previous navball
   tft->fillRect(0, 0, SIZE, SIZE, WHITE);
   tft->drawCircle(SIZE/2, SIZE/2, SIZE/2, BLACK);

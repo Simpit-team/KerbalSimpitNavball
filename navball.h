@@ -31,8 +31,8 @@ public:
   // set the values for roll/pitch/yaw, in degs
   void set_rpy(float roll, float pitch, float yaw);
 
-  // Draw the navball on the given tft
-  void draw(Adafruit_TFTLCD* tft);
+  // Draw the navball on the given Adafruit_GFX
+  void draw(Adafruit_GFX* tft);
   
 private :
   //internally, store the values as int based on the discretisation value
