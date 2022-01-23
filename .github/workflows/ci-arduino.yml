@@ -22,3 +22,4 @@ jobs:
             - name: KerbalSimpit
             - name: Adafruit GFX Library
             - name: Adafruit TFTLCD Library
+            - source-path: ./
