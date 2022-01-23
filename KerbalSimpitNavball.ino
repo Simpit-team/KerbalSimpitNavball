@@ -6,6 +6,7 @@
 #include "navball.h"
 
 #define CONNECT_TO_SIMPIT false
+#define USE_GFXcanvas true
 
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
@@ -27,6 +28,7 @@
 #define WHITE   0xFFFF
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+//GFXcanvas1 canvas(300, 300);
 
 KerbalSimpit mySimpit(Serial);
 
@@ -81,6 +83,8 @@ void loop()
 
   start_time = millis();
   navball.draw(&tft);
+  //navball.draw(&canvas);
+  //tft.drawBitmap(0, 0, canvas.getBuffer(), 300, 300, BLACK, WHITE);
   end_time = millis();
 
   // Draw the time it took to compute a frame, in ms
