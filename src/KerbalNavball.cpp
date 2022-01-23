@@ -42,6 +42,58 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
       }
     }
   }
+
+  // Draw the graduations
+  tft->setTextColor(BLACK);
+  tft->setTextSize(1);
+
+  Point2D posXY = getXY(0, 0);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("N");
+  }
+
+  posXY = getXY(0, 45);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("45");
+  }
+
+  posXY = getXY(0, 90);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("E");
+  }
+
+  posXY = getXY(0, 135);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("135");
+  }
+
+  posXY = getXY(0, 180);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("S");
+  }
+
+  posXY = getXY(0, 225);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("225");
+  }
+
+  posXY = getXY(0, 270);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("W");
+  }
+
+  posXY = getXY(0, 315);
+  if(posXY.visible){
+	  tft->setCursor(posXY.x, posXY.y);
+	  tft->print("315");
+  }
 }
 
 void KerbalNavball::set_rpy(float roll, float pitch, float yaw){
