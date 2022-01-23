@@ -1,3 +1,6 @@
+![Main branch building](https://github.com/Simpit-team/KerbalSimpitNavball/actions/workflows/ci-arduino.yml/badge.svg)
+
+
 Navball library for Arduino, using KerbalSimpit to connect KSP to the Arduino
 
 The goal of this library is to be able to draw a navball on a screen connected to an Arduino, in order to integrate it in a custom KSP controller.
