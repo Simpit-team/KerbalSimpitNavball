@@ -1,9 +1,9 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 
-#include "KerbalSimpit.h"
+#include <KerbalSimpit.h>
 
-#include "navball.h"
+#include <navball.h>
 
 #define CONNECT_TO_SIMPIT false
 #define USE_GFXcanvas true
