@@ -24,9 +24,9 @@ struct Point2D{
   bool visible; // True if the point is not hidden behind the navball
 };
 
-class Navball {
+class KerbalNavball {
 public:
-  Navball();
+  KerbalNavball();
 
   // set the values for roll/pitch/yaw, in degs
   void set_rpy(float roll, float pitch, float yaw);

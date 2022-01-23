@@ -3,7 +3,7 @@
 
 #include <KerbalSimpit.h>
 
-#include <navball.h>
+#include <KerbalNavball.h>
 
 #define CONNECT_TO_SIMPIT false
 #define USE_GFXcanvas true
@@ -33,7 +33,7 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 KerbalSimpit mySimpit(Serial);
 
 float roll, pitch, yaw;
-Navball navball;
+KerbalNavball navball;
 
 unsigned long start_time, end_time;
 

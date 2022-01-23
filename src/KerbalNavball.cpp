@@ -1,14 +1,14 @@
-#include "navball.h"
+#include "KerbalNavball.h"
 
-float Navball::_sin_table[DISCRETISATION_SIZE/4 + 1];
+float KerbalNavball::_sin_table[DISCRETISATION_SIZE/4 + 1];
 
-Navball::Navball(){
+KerbalNavball::KerbalNavball(){
   for(int i = 0; i <= DISCRETISATION_SIZE/4; i++){
     _sin_table[i] = sin(i*2*3.14/DISCRETISATION_SIZE);
   }
 }
 
-void Navball::draw(Adafruit_GFX* tft){
+void KerbalNavball::draw(Adafruit_GFX* tft){
   // Erase previous navball
   tft->fillRect(0, 0, SIZE, SIZE, WHITE);
   tft->drawCircle(SIZE/2, SIZE/2, SIZE/2, BLACK);
@@ -44,13 +44,13 @@ void Navball::draw(Adafruit_GFX* tft){
   }
 }
 
-void Navball::set_rpy(float roll, float pitch, float yaw){
+void KerbalNavball::set_rpy(float roll, float pitch, float yaw){
   _roll =  discretize_angle(roll);
   _pitch = discretize_angle(pitch);
   _yaw =   discretize_angle(yaw);
 }
 
-float Navball::sin_d(int disc_angle){
+float KerbalNavball::sin_d(int disc_angle){
   // ensure the angle is positive
   if(disc_angle < 0) return -sin_d(-disc_angle);
   // ensure the angle is below 360°
@@ -65,12 +65,12 @@ float Navball::sin_d(int disc_angle){
   }
 }
 
-float Navball::cos_d(int disc_angle){
+float KerbalNavball::cos_d(int disc_angle){
   // Use the fact that cos(a) = sin(a + 90°)
   return sin_d(disc_angle + DISCRETISATION_SIZE/4);
 }
 
-Point2D Navball::getXY(float lat, float lon){
+Point2D KerbalNavball::getXY(float lat, float lon){
   // Discretize the coordinate
   LatLon pt_polar = {discretize_angle(lat), discretize_angle(lon)};
 
