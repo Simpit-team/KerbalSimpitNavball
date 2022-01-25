@@ -88,10 +88,10 @@ void loop()
   end_time = millis();
 
   // Draw the time it took to compute a frame, in ms
-  tft.setCursor(0, 0);
-  tft.setTextColor(RED);
-  tft.setTextSize(3);
-  tft.print(end_time - start_time);
+  //tft.setCursor(0, 0);
+  //tft.setTextColor(RED);
+  //tft.setTextSize(3);
+  //tft.print(end_time - start_time);
 
   delay(200);
 }

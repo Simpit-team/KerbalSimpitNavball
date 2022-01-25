@@ -47,6 +47,9 @@ private :
   int _pitch;
   int _yaw;
 
+  // Store start time of the call to draw, to display the time needed to draw a frame
+  unsigned long _start_draw_time;
+
   // number of point used for the angle discretisation. This is the amont of value used for the full 360°. Must be a mutliple of 4.
   static const int DISCRETISATION_SIZE = 360;
   const int NBR_LON = 36; // increment in longitude for drawing them

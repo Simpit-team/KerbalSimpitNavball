@@ -9,6 +9,8 @@ KerbalNavball::KerbalNavball(){
 }
 
 void KerbalNavball::draw(Adafruit_GFX* tft){
+  _start_draw_time = millis();
+  
   // Erase previous navball
   tft->fillRect(0, 0, SIZE, SIZE, WHITE);
 
@@ -113,6 +115,15 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
   tft->drawLine(SIZE/2 + MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + MARKER_SIZE, CENTRAL_MARKER_COLOR);
   tft->drawFastHLine(SIZE/2 + MARKER_SIZE, SIZE/2, MARKER_SIZE, CENTRAL_MARKER_COLOR);
   tft->fillCircle(SIZE/2, SIZE/2, 3, CENTRAL_MARKER_COLOR);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Draw indicators (values)
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  tft->setTextColor(BLACK);
+  tft->setCursor(0, 0);
+  tft->println("Heading : " + String(_yaw));
+  tft->println("Pitch : " + String(_pitch));
+  tft->println("Time : " + String(millis() - _start_draw_time) + "ms");
 }
 
 void KerbalNavball::set_rpy(float roll, float pitch, float yaw){
