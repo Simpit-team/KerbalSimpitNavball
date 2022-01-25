@@ -121,8 +121,20 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   tft->setTextColor(BLACK);
   tft->setCursor(0, 0);
-  tft->println("Heading : " + String(_yaw));
-  tft->println("Pitch : " + String(_pitch));
+  // Values are contraints between 0-360 for yaw and -90 to 90 for pitch
+  if(_pitch <= DISCRETISATION_SIZE/4){
+    tft->println("Heading : " + String(_yaw*360/DISCRETISATION_SIZE));
+    tft->println("Pitch : " + String(_pitch*360/DISCRETISATION_SIZE));
+  } else if(_pitch > DISCRETISATION_SIZE/4 && _pitch <= DISCRETISATION_SIZE/2){
+    tft->println("Heading : " + String(((_yaw + DISCRETISATION_SIZE/2)%DISCRETISATION_SIZE)*360/DISCRETISATION_SIZE));
+    tft->println("Pitch : " + String(((DISCRETISATION_SIZE/2 - _pitch)%DISCRETISATION_SIZE)*360/DISCRETISATION_SIZE));
+  } else if(_pitch > DISCRETISATION_SIZE/2 && _pitch <= 3*DISCRETISATION_SIZE/4){
+    tft->println("Heading : " + String(((_yaw + DISCRETISATION_SIZE/2)%DISCRETISATION_SIZE)*360/DISCRETISATION_SIZE));
+    tft->println("Pitch : " + String(((DISCRETISATION_SIZE/2 - _pitch)%DISCRETISATION_SIZE)*360/DISCRETISATION_SIZE));
+  } else {
+    tft->println("Heading : " + String(_yaw*360/DISCRETISATION_SIZE));
+    tft->println("Pitch : " + String((_pitch - DISCRETISATION_SIZE)*360/DISCRETISATION_SIZE));
+  }
   tft->println("Time : " + String(millis() - _start_draw_time) + "ms");
 }
 
