@@ -11,6 +11,10 @@ KerbalNavball::KerbalNavball(){
 void KerbalNavball::draw(Adafruit_GFX* tft){
   // Erase previous navball
   tft->fillRect(0, 0, SIZE, SIZE, WHITE);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Draw the ball itself
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   tft->drawCircle(SIZE/2, SIZE/2, SIZE/2, BLACK);
 
   // Draw the 'horizontal' lines, including equator
@@ -43,7 +47,10 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
     }
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Draw the graduations
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   tft->setTextColor(BLACK);
   tft->setTextSize(1);
 
@@ -94,6 +101,18 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
 	  tft->setCursor(posXY.x, posXY.y);
 	  tft->print("315");
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Draw central marker
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Length of the lines used to draw the marker
+  const int MARKER_SIZE = SIZE/10;
+  tft->drawFastHLine(SIZE/2 - 2*MARKER_SIZE, SIZE/2, MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->drawLine(SIZE/2 - MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->drawLine(SIZE/2 + MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->drawFastHLine(SIZE/2 + MARKER_SIZE, SIZE/2, MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->fillCircle(SIZE/2, SIZE/2, 3, CENTRAL_MARKER_COLOR);
 }
 
 void KerbalNavball::set_rpy(float roll, float pitch, float yaw){
