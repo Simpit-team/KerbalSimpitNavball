@@ -161,7 +161,7 @@ Point2D KerbalNavball::getXY(float lat, float lon){
   Point3D pt1 = {sin_d(pt_polar.lon)*cos_d(pt_polar.lat), sin_d(pt_polar.lat), cos_d(pt_polar.lon)*cos_d(pt_polar.lat)};
 
   // Apply yaw rotation
-  Point3D pt2 = {pt1.x*cos_d(_yaw)+pt1.z*sin_d(_yaw), pt1.y, -pt1.x*sin_d(_yaw)+pt1.z*cos_d(_yaw)};
+  Point3D pt2 = {pt1.x*cos_d(_yaw)+pt1.z*sin_d(-_yaw), pt1.y, -pt1.x*sin_d(-_yaw)+pt1.z*cos_d(_yaw)};
 
   // Apply pitch rotation
   Point3D pt3 = {pt2.x, pt2.y*cos_d(_pitch)+pt2.z*sin_d(_pitch), -pt2.y*sin_d(_pitch)+pt2.z*cos_d(_pitch)};
