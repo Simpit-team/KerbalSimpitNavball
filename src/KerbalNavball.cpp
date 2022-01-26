@@ -108,13 +108,36 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
   // Draw central marker
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // Length of the lines used to draw the marker
-  const int MARKER_SIZE = SIZE/10;
-  tft->drawFastHLine(SIZE/2 - 2*MARKER_SIZE, SIZE/2, MARKER_SIZE, CENTRAL_MARKER_COLOR);
-  tft->drawLine(SIZE/2 - MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + MARKER_SIZE, CENTRAL_MARKER_COLOR);
-  tft->drawLine(SIZE/2 + MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + MARKER_SIZE, CENTRAL_MARKER_COLOR);
-  tft->drawFastHLine(SIZE/2 + MARKER_SIZE, SIZE/2, MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  // Basic size of the markers, approximately the radius of each marker
+  const int MARKER_SIZE = SIZE/20;
+
+  // Central marker is bigger than other markers, scale to be 8*MARKER_SIZE long and 2*MARKER_SIZE in height
+  tft->drawFastHLine(SIZE/2 - 4*MARKER_SIZE, SIZE/2, 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->drawLine(SIZE/2 - 2*MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->drawLine(SIZE/2 + 2*MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
+  tft->drawFastHLine(SIZE/2 + 2*MARKER_SIZE, SIZE/2, 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
   tft->fillCircle(SIZE/2, SIZE/2, 3, CENTRAL_MARKER_COLOR);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Draw target marker
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  if(_is_target_set){
+    posXY = getXY(_pitch_target, _heading_target);
+    if(posXY.visible){
+      // Draw marker to target
+      tft->fillCircle(posXY.x, posXY.y, 3, TARGET_MARKER_COLOR);
+      tft->drawCircle(posXY.x, posXY.y, MARKER_SIZE, TARGET_MARKER_COLOR);
+    } else {
+      // Draw marker opposite to target
+      posXY = getXY(_pitch_target + 180, _heading_target);
+      tft->fillCircle(posXY.x, posXY.y, 3, TARGET_MARKER_COLOR);
+      tft->drawFastVLine(posXY.x, posXY.y + MARKER_SIZE/3, 2*MARKER_SIZE/3, TARGET_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.3*MARKER_SIZE, posXY.y - 0.3*MARKER_SIZE, posXY.x + 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, TARGET_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.3*MARKER_SIZE, posXY.y - 0.3*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, TARGET_MARKER_COLOR);
+    }
+  }
+  
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Draw indicators (values)
@@ -142,6 +165,18 @@ void KerbalNavball::set_rpy(float roll, float pitch, float yaw){
   _roll =  discretize_angle(roll);
   _pitch = discretize_angle(pitch);
   _yaw =   discretize_angle(yaw);
+}
+
+void KerbalNavball::set_target(float heading, float pitch){
+  _is_target_set = true;
+  _heading_target = heading;
+  _pitch_target = pitch;
+}
+  
+void KerbalNavball::unset_target(){
+  _is_target_set = false;
+  _heading_target = 0;
+  _pitch_target = 0;
 }
 
 float KerbalNavball::sin_d(int disc_angle){

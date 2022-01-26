@@ -80,6 +80,8 @@ void loop()
     yaw += 3;
   }
   navball.set_rpy(roll, pitch, yaw);
+  navball.set_target(45, 30);
+
 
   start_time = millis();
   navball.draw(&tft);

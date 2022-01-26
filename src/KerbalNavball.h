@@ -12,6 +12,7 @@
 
 // Specific colors
 #define CENTRAL_MARKER_COLOR 0xF780
+#define TARGET_MARKER_COLOR MAGENTA
 
 // In deg discretized
 struct LatLon{
@@ -38,6 +39,10 @@ public:
   // set the values for roll/pitch/yaw, in degs
   void set_rpy(float roll, float pitch, float yaw);
 
+  // Set a target with those values
+  void set_target(float heading, float pitch);
+  void unset_target();
+
   // Draw the navball on the given Adafruit_GFX
   void draw(Adafruit_GFX* tft);
   
@@ -46,6 +51,10 @@ private :
   int _roll;
   int _pitch;
   int _yaw;
+
+  float _heading_target;
+  float _pitch_target;
+  bool _is_target_set;
 
   // Store start time of the call to draw, to display the time needed to draw a frame
   unsigned long _start_draw_time;
