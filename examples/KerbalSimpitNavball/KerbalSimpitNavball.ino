@@ -81,6 +81,7 @@ void loop()
   }
   navball.set_rpy(roll, pitch, yaw);
   navball.set_target(45, 30);
+  navball.set_maneuver(15, -30);
 
 
   start_time = millis();

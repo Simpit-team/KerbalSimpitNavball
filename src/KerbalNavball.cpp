@@ -137,6 +137,20 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
       tft->drawLine(posXY.x - 0.3*MARKER_SIZE, posXY.y - 0.3*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, TARGET_MARKER_COLOR);
     }
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Draw maneuver marker
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  if(_is_maneuver_set){
+    posXY = getXY(_pitch_maneuver, _heading_maneuver);
+    if(posXY.visible){
+      tft->fillCircle(posXY.x, posXY.y, 3, MANEUVER_MARKER_COLOR);
+      tft->drawFastVLine(posXY.x, posXY.y - MARKER_SIZE, 2*MARKER_SIZE/3, MANEUVER_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.3*MARKER_SIZE, posXY.y + 0.3*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, MANEUVER_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.3*MARKER_SIZE, posXY.y + 0.3*MARKER_SIZE, posXY.x + 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, MANEUVER_MARKER_COLOR);
+    }
+  }
   
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,6 +191,18 @@ void KerbalNavball::unset_target(){
   _is_target_set = false;
   _heading_target = 0;
   _pitch_target = 0;
+}
+
+void KerbalNavball::set_maneuver(float heading, float pitch){
+  _is_maneuver_set = true;
+  _heading_maneuver = heading;
+  _pitch_maneuver = pitch;
+}
+  
+void KerbalNavball::unset_maneuver(){
+  _is_maneuver_set = false;
+  _heading_maneuver = 0;
+  _pitch_maneuver = 0;
 }
 
 float KerbalNavball::sin_d(int disc_angle){

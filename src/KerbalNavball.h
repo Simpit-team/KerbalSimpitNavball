@@ -13,6 +13,7 @@
 // Specific colors
 #define CENTRAL_MARKER_COLOR 0xF780
 #define TARGET_MARKER_COLOR MAGENTA
+#define MANEUVER_MARKER_COLOR BLUE
 
 // In deg discretized
 struct LatLon{
@@ -40,6 +41,10 @@ public:
   void set_rpy(float roll, float pitch, float yaw);
 
   // Set a target with those values
+  void set_maneuver(float heading, float pitch);
+  void unset_maneuver();
+
+  // Set a maneuver with those values
   void set_target(float heading, float pitch);
   void unset_target();
 
@@ -55,6 +60,10 @@ private :
   float _heading_target;
   float _pitch_target;
   bool _is_target_set;
+
+  float _heading_maneuver;
+  float _pitch_maneuver;
+  bool _is_maneuver_set;
 
   // Store start time of the call to draw, to display the time needed to draw a frame
   unsigned long _start_draw_time;
