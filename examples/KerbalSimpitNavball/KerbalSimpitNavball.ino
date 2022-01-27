@@ -90,11 +90,7 @@ void loop()
   //tft.drawBitmap(0, 0, canvas.getBuffer(), 300, 300, BLACK, WHITE);
   end_time = millis();
 
-  // Draw the time it took to compute a frame, in ms
-  //tft.setCursor(0, 0);
-  //tft.setTextColor(RED);
-  //tft.setTextSize(3);
-  //tft.print(end_time - start_time);
+  //while(1){}
 
   delay(200);
 }
