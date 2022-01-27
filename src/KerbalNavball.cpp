@@ -6,6 +6,10 @@ KerbalNavball::KerbalNavball(){
   for(int i = 0; i <= DISCRETISATION_SIZE/4; i++){
     _sin_table[i] = sin(i*2*3.14/DISCRETISATION_SIZE);
   }
+
+  _is_target_set = false;
+  _is_maneuver_set = false;
+  _is_speed_orientation_set = false;
 }
 
 void KerbalNavball::draw(Adafruit_GFX* tft){
@@ -116,8 +120,72 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
   tft->drawLine(SIZE/2 - 2*MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
   tft->drawLine(SIZE/2 + 2*MARKER_SIZE, SIZE/2, SIZE/2, SIZE/2 + 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
   tft->drawFastHLine(SIZE/2 + 2*MARKER_SIZE, SIZE/2, 2*MARKER_SIZE, CENTRAL_MARKER_COLOR);
-  tft->fillCircle(SIZE/2, SIZE/2, 3, CENTRAL_MARKER_COLOR);
+  tft->fillCircle(SIZE/2, SIZE/2, MARKER_CENTER_RADIUS, CENTRAL_MARKER_COLOR);
 
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Draw prograde, normal, radial marker
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  if(_is_speed_orientation_set){
+
+    posXY = getXY(_prograde_pitch, _prograde_heading);
+    if(posXY.visible){
+      // Draw prograde marker
+      tft->fillCircle(posXY.x, posXY.y, MARKER_CENTER_RADIUS, PROGRADE_MARKER_COLOR);
+      tft->drawCircle(posXY.x, posXY.y, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawFastVLine(posXY.x, posXY.y - MARKER_SIZE, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawFastHLine(posXY.x + MARKER_SIZE/2, posXY.y, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawFastHLine(posXY.x - MARKER_SIZE, posXY.y, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+    } else {
+      // Draw retrograde marker
+      posXY = getXY(_prograde_pitch + 180, _prograde_heading);
+      tft->drawCircle(posXY.x, posXY.y, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.7*MARKER_SIZE/2, posXY.y + 0.7*MARKER_SIZE/2, posXY.x + 0.7*MARKER_SIZE/2, posXY.y - 0.7*MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*MARKER_SIZE/2, posXY.y + 0.7*MARKER_SIZE/2, posXY.x - 0.7*MARKER_SIZE/2, posXY.y - 0.7*MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawFastVLine(posXY.x, posXY.y - MARKER_SIZE, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawFastHLine(posXY.x + MARKER_SIZE/2, posXY.y, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+      tft->drawFastHLine(posXY.x - MARKER_SIZE, posXY.y, MARKER_SIZE/2, PROGRADE_MARKER_COLOR);
+    }
+
+    posXY = getXY(_normal_pitch, _normal_heading);
+    if(posXY.visible){
+      // Draw normal marker
+      tft->fillCircle(posXY.x, posXY.y, MARKER_CENTER_RADIUS, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x, posXY.y - MARKER_SIZE, posXY.x + 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x, posXY.y - MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, NORMAL_MARKER_COLOR);
+    } else {
+      // Draw anti-normal marker
+      posXY = getXY(_normal_pitch + 180, _normal_heading);
+      tft->fillCircle(posXY.x, posXY.y, MARKER_CENTER_RADIUS, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x, posXY.y + MARKER_SIZE, posXY.x + 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x, posXY.y + MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.3*MARKER_SIZE, posXY.y + 0.3*MARKER_SIZE, posXY.x + MARKER_SIZE, posXY.y + MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.3*MARKER_SIZE, posXY.y + 0.3*MARKER_SIZE, posXY.x - MARKER_SIZE, posXY.y + MARKER_SIZE, NORMAL_MARKER_COLOR);
+      tft->drawLine(posXY.x, posXY.y - 0.7*MARKER_SIZE, posXY.x, posXY.y - MARKER_SIZE, NORMAL_MARKER_COLOR);
+    }
+
+    posXY = getXY(_radial_pitch, _radial_heading);
+    if(posXY.visible){
+      // Draw radial in marker
+      tft->drawCircle(posXY.x, posXY.y, 2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*2*MARKER_SIZE/3, posXY.y + 0.7*2*MARKER_SIZE/3, posXY.x + 2*MARKER_SIZE/3, posXY.y + 2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*2*MARKER_SIZE/3, posXY.y - 0.7*2*MARKER_SIZE/3, posXY.x + 2*MARKER_SIZE/3, posXY.y - 2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.7*2*MARKER_SIZE/3, posXY.y + 0.7*2*MARKER_SIZE/3, posXY.x - 2*MARKER_SIZE/3, posXY.y + 2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.7*2*MARKER_SIZE/3, posXY.y - 0.7*2*MARKER_SIZE/3, posXY.x - 2*MARKER_SIZE/3, posXY.y - 2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+    } else {
+      // Draw radial out marker
+      posXY = getXY(_radial_pitch + 180, _radial_heading);
+      tft->drawCircle(posXY.x, posXY.y, 2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*2*MARKER_SIZE/3, posXY.y + 0.7*2*MARKER_SIZE/3, posXY.x + 0.3*2*MARKER_SIZE/3, posXY.y + 0.3*2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x + 0.7*2*MARKER_SIZE/3, posXY.y - 0.7*2*MARKER_SIZE/3, posXY.x + 0.3*2*MARKER_SIZE/3, posXY.y - 0.3*2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.7*2*MARKER_SIZE/3, posXY.y + 0.7*2*MARKER_SIZE/3, posXY.x - 0.3*2*MARKER_SIZE/3, posXY.y + 0.3*2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+      tft->drawLine(posXY.x - 0.7*2*MARKER_SIZE/3, posXY.y - 0.7*2*MARKER_SIZE/3, posXY.x - 0.3*2*MARKER_SIZE/3, posXY.y - 0.3*2*MARKER_SIZE/3, RADIAL_MARKER_COLOR);
+    }
+  }
+  
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Draw target marker
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,12 +194,12 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
     posXY = getXY(_pitch_target, _heading_target);
     if(posXY.visible){
       // Draw marker to target
-      tft->fillCircle(posXY.x, posXY.y, 3, TARGET_MARKER_COLOR);
+      tft->fillCircle(posXY.x, posXY.y, MARKER_CENTER_RADIUS, TARGET_MARKER_COLOR);
       tft->drawCircle(posXY.x, posXY.y, MARKER_SIZE, TARGET_MARKER_COLOR);
     } else {
       // Draw marker opposite to target
       posXY = getXY(_pitch_target + 180, _heading_target);
-      tft->fillCircle(posXY.x, posXY.y, 3, TARGET_MARKER_COLOR);
+      tft->fillCircle(posXY.x, posXY.y, MARKER_CENTER_RADIUS, TARGET_MARKER_COLOR);
       tft->drawFastVLine(posXY.x, posXY.y + MARKER_SIZE/3, 2*MARKER_SIZE/3, TARGET_MARKER_COLOR);
       tft->drawLine(posXY.x + 0.3*MARKER_SIZE, posXY.y - 0.3*MARKER_SIZE, posXY.x + 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, TARGET_MARKER_COLOR);
       tft->drawLine(posXY.x - 0.3*MARKER_SIZE, posXY.y - 0.3*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y - 0.7*MARKER_SIZE, TARGET_MARKER_COLOR);
@@ -145,7 +213,7 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
   if(_is_maneuver_set){
     posXY = getXY(_pitch_maneuver, _heading_maneuver);
     if(posXY.visible){
-      tft->fillCircle(posXY.x, posXY.y, 3, MANEUVER_MARKER_COLOR);
+      tft->fillCircle(posXY.x, posXY.y, MARKER_CENTER_RADIUS, MANEUVER_MARKER_COLOR);
       tft->drawFastVLine(posXY.x, posXY.y - MARKER_SIZE, 2*MARKER_SIZE/3, MANEUVER_MARKER_COLOR);
       tft->drawLine(posXY.x - 0.3*MARKER_SIZE, posXY.y + 0.3*MARKER_SIZE, posXY.x - 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, MANEUVER_MARKER_COLOR);
       tft->drawLine(posXY.x + 0.3*MARKER_SIZE, posXY.y + 0.3*MARKER_SIZE, posXY.x + 0.7*MARKER_SIZE, posXY.y + 0.7*MARKER_SIZE, MANEUVER_MARKER_COLOR);
@@ -203,6 +271,26 @@ void KerbalNavball::unset_maneuver(){
   _is_maneuver_set = false;
   _heading_maneuver = 0;
   _pitch_maneuver = 0;
+}
+
+void KerbalNavball::set_speed_orientation(float prograde_heading, float prograde_pitch, float normal_heading, float normal_pitch, float radial_heading, float radial_pitch){
+  _is_speed_orientation_set = true;
+  _prograde_heading = prograde_heading;
+  _prograde_pitch = prograde_pitch;
+  _normal_heading = normal_heading;
+  _normal_pitch = normal_pitch;
+  _radial_heading = radial_heading;
+  _radial_pitch = radial_pitch;
+}
+
+void KerbalNavball::unset_speed_orientation(){
+  _is_speed_orientation_set = false;
+  _prograde_heading = 0;
+  _prograde_pitch = 0;
+  _normal_heading = 0;
+  _normal_pitch = 0;
+  _radial_heading = 0;
+  _radial_pitch = 0;
 }
 
 float KerbalNavball::sin_d(int disc_angle){

@@ -12,8 +12,14 @@
 
 // Specific colors
 #define CENTRAL_MARKER_COLOR 0xF780
+#define PROGRADE_MARKER_COLOR GREEN
+#define NORMAL_MARKER_COLOR MAGENTA
+#define RADIAL_MARKER_COLOR CYAN
 #define TARGET_MARKER_COLOR MAGENTA
 #define MANEUVER_MARKER_COLOR BLUE
+
+// radius of all the central points of the markers, in pixels
+#define MARKER_CENTER_RADIUS 2
 
 // In deg discretized
 struct LatLon{
@@ -48,6 +54,10 @@ public:
   void set_target(float heading, float pitch);
   void unset_target();
 
+  // Set speed orientation
+  void set_speed_orientation(float prograde_heading, float prograde_pitch, float normal_heading, float normal_pitch, float radial_heading, float radial_pitch);
+  void unset_speed_orientation();
+
   // Draw the navball on the given Adafruit_GFX
   void draw(Adafruit_GFX* tft);
   
@@ -64,6 +74,14 @@ private :
   float _heading_maneuver;
   float _pitch_maneuver;
   bool _is_maneuver_set;
+
+  float _prograde_heading;
+  float _prograde_pitch;
+  float _normal_heading;
+  float _normal_pitch;
+  float _radial_heading;
+  float _radial_pitch;
+  bool _is_speed_orientation_set;
 
   // Store start time of the call to draw, to display the time needed to draw a frame
   unsigned long _start_draw_time;
