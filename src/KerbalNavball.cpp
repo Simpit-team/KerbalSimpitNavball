@@ -241,6 +241,8 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
     tft->println("Pitch : " + String((_pitch - DISCRETISATION_SIZE)*360/DISCRETISATION_SIZE));
   }
   tft->println("Time : " + String(millis() - _start_draw_time) + "ms");
+  tft->println("Target : " + String(_heading_target) + "," + String(_pitch_target));
+  tft->println("Man. : " + String(_heading_maneuver) + "," + String(_pitch_maneuver));
 }
 
 void KerbalNavball::set_rpy(float roll, float pitch, float yaw){
