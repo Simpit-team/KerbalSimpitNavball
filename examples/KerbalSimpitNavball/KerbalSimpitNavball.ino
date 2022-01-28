@@ -1,12 +1,15 @@
+/* KerbalSimpitNavball
+   A demonstration of drawing a Navball to connected to a KSP instance
+
+   Use a Adafruit_TFTLCD with a 8-bit parallel interface. See this tutorial : https://learn.adafruit.com/adafruit-2-8-and-3-2-color-tft-touchscreen-breakout-v2/pinouts
+*/
+
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 
 #include <KerbalSimpit.h>
 
 #include <KerbalNavball.h>
-
-#define CONNECT_TO_SIMPIT false
-#define USE_GFXcanvas true
 
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but we'll use the analog pins as this allows us to
@@ -17,28 +20,14 @@
 #define LCD_RD A0 // LCD Read goes to Analog 0
 #define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
 
-// Assign human-readable names to some common 16-bit color values:
-#define BLACK   0x0000
-#define BLUE    0x001F
-#define RED     0xF800
-#define GREEN   0x07E0
-#define CYAN    0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW  0xFFE0
-#define WHITE   0xFFFF
-
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
-//GFXcanvas1 canvas(300, 300);
 
 KerbalSimpit mySimpit(Serial);
 
-float roll, pitch, yaw;
 KerbalNavball navball;
 
-unsigned long start_time, end_time;
-
 void setup() {
-  if(CONNECT_TO_SIMPIT) Serial.begin(115200);
+  Serial.begin(115200);
 
   // Set up the build in LED, and turn it on.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -46,66 +35,70 @@ void setup() {
   
   tft.reset();
 
-  roll = 0;
-  pitch = 0;
-  yaw = 0;
-
   tft.begin(0x8357);
 
+  // To check the connection to the screen, fill the screen in red then black
   tft.fillScreen(RED);
   tft.fillScreen(BLACK);
 
-  if(CONNECT_TO_SIMPIT){
-    //Connect to Simpit
-    while (!mySimpit.init()) {
-      delay(100);
-    }
+  tft.setCursor(0, 0);
+  tft.setTextColor(WHITE);
+  tft.println("Connection ...");
 
-    digitalWrite(LED_BUILTIN, LOW);
-
-    mySimpit.printToKSP("Navball Connected", PRINT_TO_SCREEN);
-
-    mySimpit.inboundHandler(messageHandler);
-    mySimpit.registerChannel(ROTATION_DATA);
+  //Connect to Simpit
+  while (!mySimpit.init()) {
+    delay(100);
   }
+
+  digitalWrite(LED_BUILTIN, LOW);
+
+  mySimpit.printToKSP("Navball Connected", PRINT_TO_SCREEN);
+
+  mySimpit.inboundHandler(messageHandler);
+  mySimpit.registerChannel(ROTATION_DATA);
+  mySimpit.registerChannel(MANEUVER_MESSAGE);
+  mySimpit.registerChannel(TARGETINFO_MESSAGE);
 }
 
 void loop()
 { 
-  if(CONNECT_TO_SIMPIT) {
-    mySimpit.update();
-  } else {
-    roll += 5;
-    pitch += 2;
-    yaw += 3;
-  }
+  mySimpit.update();
+
+  /*
   navball.set_rpy(roll, pitch, yaw);
   navball.set_target(45, 30);
   navball.set_maneuver(15, -30);
   navball.set_speed_orientation(-20, -20, -40, -40, -40, 40);
+  */
 
-
-  start_time = millis();
   navball.draw(&tft);
-  //navball.draw(&canvas);
-  //tft.drawBitmap(0, 0, canvas.getBuffer(), 300, 300, BLACK, WHITE);
-  end_time = millis();
-
-  //while(1){}
 
   delay(200);
 }
 
 void messageHandler(byte messageType, byte msg[], byte msgSize) {
   switch(messageType) {
-  case ROTATION_DATA:
-    if (msgSize == sizeof(vesselPointingMessage)) {
-      vesselPointingMessage rotMsg;
-      rotMsg = parseMessage<vesselPointingMessage>(msg);
-      roll = rotMsg.roll;
-      pitch = rotMsg.pitch;
-      yaw = rotMsg.heading;
-    }
-    break;
+    case ROTATION_DATA:
+      if (msgSize == sizeof(vesselPointingMessage)) {
+        vesselPointingMessage rotMsg;
+        rotMsg = parseMessage<vesselPointingMessage>(msg);
+        navball.set_rpy(rotMsg.roll, rotMsg.pitch, rotMsg.heading);
+        navball.set_speed_orientation(rotMsg.orbitalVelocityHeading, rotMsg.orbitalVelocityPitch, -40, -40, -40, 40);
+      }
+      break;
+    case MANEUVER_MESSAGE:
+      if (msgSize == sizeof(maneuverMessage)) {
+        maneuverMessage manMsg;
+        manMsg = parseMessage<maneuverMessage>(msg);
+        navball.set_maneuver(manMsg.headingNextManeuver, manMsg.pitchNextManeuver);
+      }
+      break;
+    case TARGETINFO_MESSAGE:
+      if (msgSize == sizeof(targetMessage)) {
+        targetMessage targetMsg;
+        targetMsg = parseMessage<targetMessage>(msg);
+        navball.set_maneuver(targetMsg.heading, targetMsg.pitch);
+      }
+      break;
   }
 }
