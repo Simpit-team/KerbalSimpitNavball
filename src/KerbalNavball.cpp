@@ -26,9 +26,9 @@ void KerbalNavball::draw(Adafruit_GFX* tft){
   // Draw the 'horizontal' lines, including equator
   for(int lat = - 90 + LAT_INC; lat < 90; lat += LAT_INC){
     // Set the color based on the line
-    int color = GREEN;
-    if(lat < 0) color = RED;
-    if(lat > 0) color = BLUE;
+    int color = EQUATOR_COLOR;
+    if(lat < 0) color = BELOW_GROUND_COLOR;
+    if(lat > 0) color = ABOVE_GROUND_COLOR;
     
     for(int lon = -180; lon < 180; lon += 360/NBR_LON){
       Point2D startXY = getXY(lat, lon);
