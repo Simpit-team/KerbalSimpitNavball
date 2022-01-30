@@ -333,5 +333,6 @@ Point2D KerbalNavball::getXY(float lat, float lon){
   Point3D pt4 = {pt3.x*cos_d(_roll)+pt3.y*sin_d(_roll), -pt3.x*sin_d(_roll)+pt3.y*cos_d(_roll), pt3.z};
 
   // Convert the coordinate from a sphere of size one to screen coordinate
-  return Point2D{(pt4.x+ 1)*SIZE/2, (pt4.y+ 1)*SIZE/2, pt4.z >= 0};
+  // Beware, Y is pointed downward
+  return Point2D{(pt4.x+ 1)*SIZE/2, (1 - pt4.y)*SIZE/2, pt4.z >= 0};
 }
