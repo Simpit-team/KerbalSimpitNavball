@@ -58,18 +58,12 @@ void setup() {
   mySimpit.registerChannel(ROTATION_DATA);
   mySimpit.registerChannel(MANEUVER_MESSAGE);
   mySimpit.registerChannel(TARGETINFO_MESSAGE);
+  mySimpit.registerChannel(FLIGHT_STATUS_MESSAGE);
 }
 
 void loop()
 { 
   mySimpit.update();
-
-  /*
-  navball.set_rpy(roll, pitch, yaw);
-  navball.set_target(45, 30);
-  navball.set_maneuver(15, -30);
-  navball.set_speed_orientation(-20, -20, -40, -40, -40, 40);
-  */
 
   navball.draw(&tft);
 
@@ -83,21 +77,35 @@ void messageHandler(byte messageType, byte msg[], byte msgSize) {
         vesselPointingMessage rotMsg;
         rotMsg = parseMessage<vesselPointingMessage>(msg);
         navball.set_rpy(rotMsg.roll, rotMsg.pitch, rotMsg.heading);
-        navball.set_speed_orientation(rotMsg.orbitalVelocityHeading, rotMsg.orbitalVelocityPitch, -40, -40, -40, 40);
+        // TODO set the radial and normal markers
+        navball.set_speed_orientation(rotMsg.orbitalVelocityHeading, rotMsg.orbitalVelocityPitch, 90, 0, 0, 90);
       }
       break;
     case MANEUVER_MESSAGE:
       if (msgSize == sizeof(maneuverMessage)) {
         maneuverMessage manMsg;
         manMsg = parseMessage<maneuverMessage>(msg);
-        navball.set_maneuver(manMsg.headingNextManeuver, manMsg.pitchNextManeuver);
+        if(manMsg.deltaVTotal != 0){
+          navball.set_maneuver(manMsg.headingNextManeuver, manMsg.pitchNextManeuver);
+        } else {
+          navball.unset_maneuver();
+        }
       }
       break;
     case TARGETINFO_MESSAGE:
       if (msgSize == sizeof(targetMessage)) {
         targetMessage targetMsg;
         targetMsg = parseMessage<targetMessage>(msg);
-        navball.set_maneuver(targetMsg.heading, targetMsg.pitch);
+        navball.set_target(targetMsg.heading, targetMsg.pitch);
+      }
+      break;
+    case FLIGHT_STATUS_MESSAGE:
+      if (msgSize == sizeof(flightStatusMessage)) {
+        flightStatusMessage flightMsg;
+        flightMsg = parseMessage<flightStatusMessage>(msg);
+        if(!flightMsg.hasTarget()){
+          navball.unset_target();
+        }
       }
       break;
   }
